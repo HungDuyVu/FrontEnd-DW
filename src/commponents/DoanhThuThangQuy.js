@@ -12,8 +12,8 @@ const generateFakeData = () => {
       id: i,
       customerName: `Customer ${i}`,
       productName: `Product ${String.fromCharCode(65 + (i % 26))}`,
-      city: `State ${i % 10 + 1}`,
-      month: `Month ${(i % 12) + 1}`,
+      city: `City ${i % 10 + 1}`,
+      month: `Quý ${(Math.floor(i / 25) % 4) + 1}`, // Chỉ có 4 quý
       quantity: Math.floor(Math.random() * 1000) + 1,
       revenue: Math.floor(Math.random() * 10000) + 1000
     };
@@ -32,26 +32,26 @@ const fetchDataFromBackend = async () => {
   }
 };
 
-const DoanhThuBang = () => {
+const DoanhThuBangQuy = () => {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [showCityList, setShowCityList] = useState(false);
   const [cityList, setCityList] = useState([]);
   const [selectedCity, setSelectedCity] = useState(null);
-  const [selectedMonth, setSelectedMonth] = useState(null); // Thêm state mới để lưu trữ tháng được chọn
+  const [selectedQuy, setSelectedQuy] = useState(null); // Thêm state mới để lưu trữ quý được chọn
   const navigate = useNavigate();
 
   const handleSwitchToThanhPho = () => {
-    navigate('/doanh-thu');
-  };
-
-  const handleSwitchToBangQuy = () => {
-    navigate('/doanh-thu-bang-quy');
+    navigate('/doanh-thu-bang');
   };
 
   const handleSwitchToBangNam = () => {
-    navigate('/doanh-thu-bang-nam');
+    navigate('/doanh-thu-tp-nam');
   };
+
+  const handleSwitchToBang = () => {
+    navigate('/doanh-thu');
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,8 +70,8 @@ const DoanhThuBang = () => {
   const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
 
   const currentItems = selectedCity
-    ? data.filter(item => item.city === selectedCity && (!selectedMonth || item.month === `Month ${selectedMonth}`)).slice(indexOfFirstItem, indexOfLastItem)
-    : data.filter(item => !selectedMonth || item.month === `Month ${selectedMonth}`).slice(indexOfFirstItem, indexOfLastItem); // Lọc dữ liệu để chỉ hiển thị các mục có tháng tương ứng với tháng được chọn
+    ? data.filter(item => item.city === selectedCity && (!selectedQuy || item.month === `Quý ${selectedQuy}`)).slice(indexOfFirstItem, indexOfLastItem)
+    : data.filter(item => !selectedQuy || item.month === `Quý ${selectedQuy}`).slice(indexOfFirstItem, indexOfLastItem); // Lọc dữ liệu để chỉ hiển thị các mục có quý tương ứng với quý được chọn
 
   const totalPages = Math.ceil((selectedCity ? data.filter(item => item.city === selectedCity).length : data.length) / ITEMS_PER_PAGE);
 
@@ -98,14 +98,14 @@ const DoanhThuBang = () => {
     setCurrentPage(1);
   };
 
-  const handleMonthSelect = (month) => {
-    setSelectedMonth(month);
+  const handleQuySelect = (quy) => {
+    setSelectedQuy(quy);
     setCurrentPage(1);
   };
 
   return (
     <div className="mx-auto w-4/5">
-      <h2 className="text-xl font-bold mb-4">Doanh Thu theo BANG</h2>
+      <h2 className="text-xl font-bold mb-4">Doanh Thu theo THÀNH PHỐ - QUÝ</h2>
       <div className="overflow-x-auto">
         <table className="table-auto w-full border border-gray-300">
           <thead className="bg-gray-200">
@@ -113,7 +113,7 @@ const DoanhThuBang = () => {
               <th className="px-4 py-2 border-r border-gray-300">Tên khách hàng</th>
               <th className="px-4 py-2 border-r border-gray-300">Tên mặt hàng</th>
               <th className="px-4 py-2 border-r border-gray-300 relative">
-                Bang
+                Thành Phố
                 <button
                     onClick={() => setShowCityList(!showCityList)}
                     className="absolute right-0 top-0 h-full px-2 flex items-center"
@@ -145,7 +145,17 @@ const DoanhThuBang = () => {
                 )}
               </th>
               <th className="px-4 py-2 border-r border-gray-300">
-                Tháng
+                Qúy
+                <select
+                  value={selectedQuy}
+                  onChange={(e) => handleQuySelect(e.target.value)} // Xử lý khi chọn quý
+                  className="ml-2 px-2 py-1 border border-gray-300 rounded"
+                >
+                  <option value="">Tất cả</option>
+                  {[1, 2, 3, 4].map(quy => ( // Chỉ hiển thị 4 quý
+                    <option key={quy} value={quy}>{`Quý ${quy}`}</option>
+                  ))}
+                </select>
                 <button
                   onClick={handleSwitchToBangNam}
                   className="ml-2 flex items-center" // Thêm nút chuyển sang /doanh-thu-bang-nam
@@ -153,21 +163,11 @@ const DoanhThuBang = () => {
                   <BsArrowRight />
                 </button>
                 <button
-                  onClick={handleSwitchToBangQuy}
+                  onClick={handleSwitchToBang}
                   className="ml-2 flex items-center" // Thêm nút chuyển sang /doanh-thu-bang
                 >
                   <BsArrowLeft />
                 </button>
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => handleMonthSelect(e.target.value)} // Xử lý khi chọn tháng
-                  className="ml-2 px-2 py-1 border border-gray-300 rounded focus:outline-none"
-                >
-                  <option value="">Tất cả</option>
-                  {[...Array(12).keys()].map(month => (
-                    <option key={month + 1} value={month + 1}>Tháng {month + 1}</option>
-                  ))}
-                </select>
               </th>
               <th className="px-4 py-2 border-r border-gray-300">Số lượng đặt</th>
               <th className="px-4 py-2">Doanh thu</th>
@@ -219,4 +219,4 @@ const DoanhThuBang = () => {
   );
 };
 
-export default DoanhThuBang;
+export default DoanhThuBangQuy;

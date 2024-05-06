@@ -12,8 +12,8 @@ const generateFakeData = () => {
       id: i,
       customerName: `Customer ${i}`,
       productName: `Product ${String.fromCharCode(65 + (i % 26))}`,
-      city: `State ${i % 10 + 1}`,
-      month: `Month ${(i % 12) + 1}`,
+      city: `City ${i % 10 + 1}`,
+      month: `Year ${(i % 12) + 1}`,
       quantity: Math.floor(Math.random() * 1000) + 1,
       revenue: Math.floor(Math.random() * 10000) + 1000
     };
@@ -22,9 +22,9 @@ const generateFakeData = () => {
   return data;
 };
 
-const fetchDataFromBackend = async () => {
+const fetchDataFromBackend = async (selectedYear) => { // Thêm tham số selectedYear để lấy dữ liệu tương ứng với năm được chọn
   try {
-    const response = await axios.get('API_URL');
+    const response = await axios.get(`API_URL?year=${selectedYear}`); // Sử dụng selectedYear để lấy dữ liệu theo năm
     return response.data;
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -32,31 +32,31 @@ const fetchDataFromBackend = async () => {
   }
 };
 
-const DoanhThuBang = () => {
+const DoanhThuBangNam = () => {
   const [data, setData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [showCityList, setShowCityList] = useState(false);
   const [cityList, setCityList] = useState([]);
   const [selectedCity, setSelectedCity] = useState(null);
-  const [selectedMonth, setSelectedMonth] = useState(null); // Thêm state mới để lưu trữ tháng được chọn
+  const [selectedYear, setSelectedYear] = useState(null); // Thêm state mới để lưu trữ năm được chọn
   const navigate = useNavigate();
 
   const handleSwitchToThanhPho = () => {
-    navigate('/doanh-thu');
+    navigate('/doanh-thu-bang'); // Sử dụng navigate thay vì history.push
   };
 
   const handleSwitchToBangQuy = () => {
-    navigate('/doanh-thu-bang-quy');
+    navigate('/doanh-thu-tp-quy');
   };
 
-  const handleSwitchToBangNam = () => {
-    navigate('/doanh-thu-bang-nam');
+  const handleSwitchToBang = () => {
+    navigate('/doanh-thu');
   };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiData = await fetchDataFromBackend();
+        const apiData = await fetchDataFromBackend(selectedYear); // Truyền selectedYear vào hàm fetchDataFromBackend
         setData(apiData.length > 0 ? apiData : generateFakeData());
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -64,15 +64,11 @@ const DoanhThuBang = () => {
     };
 
     fetchData();
-  }, []);
+  }, [selectedYear]); // Thêm selectedYear vào dependency array để useEffect chạy lại khi selectedYear thay đổi
 
   const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
-
-  const currentItems = selectedCity
-    ? data.filter(item => item.city === selectedCity && (!selectedMonth || item.month === `Month ${selectedMonth}`)).slice(indexOfFirstItem, indexOfLastItem)
-    : data.filter(item => !selectedMonth || item.month === `Month ${selectedMonth}`).slice(indexOfFirstItem, indexOfLastItem); // Lọc dữ liệu để chỉ hiển thị các mục có tháng tương ứng với tháng được chọn
-
+  const currentItems = selectedCity ? data.filter(item => item.city === selectedCity).slice(indexOfFirstItem, indexOfLastItem) : data.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil((selectedCity ? data.filter(item => item.city === selectedCity).length : data.length) / ITEMS_PER_PAGE);
 
   const handlePageChange = (page) => {
@@ -90,22 +86,24 @@ const DoanhThuBang = () => {
       setCityList(uniqueFakeCities);
     }
     setShowCityList(!showCityList);
+    setSelectedYear(null); // Xóa năm được chọn khi tìm kiếm thành phố mới
   };
 
   const handleCitySelect = (city) => {
     setSelectedCity(city);
     setShowCityList(false);
     setCurrentPage(1);
+    setSelectedYear(null); // Xóa năm được chọn khi chọn thành phố mới
   };
 
-  const handleMonthSelect = (month) => {
-    setSelectedMonth(month);
+  const handleYearSelect = (year) => {
+    setSelectedYear(year);
     setCurrentPage(1);
   };
 
   return (
     <div className="mx-auto w-4/5">
-      <h2 className="text-xl font-bold mb-4">Doanh Thu theo BANG</h2>
+      <h2 className="text-xl font-bold mb-4">Doanh Thu THÀNH PHỐ - NAM</h2>
       <div className="overflow-x-auto">
         <table className="table-auto w-full border border-gray-300">
           <thead className="bg-gray-200">
@@ -113,7 +111,7 @@ const DoanhThuBang = () => {
               <th className="px-4 py-2 border-r border-gray-300">Tên khách hàng</th>
               <th className="px-4 py-2 border-r border-gray-300">Tên mặt hàng</th>
               <th className="px-4 py-2 border-r border-gray-300 relative">
-                Bang
+                Thành phố
                 <button
                     onClick={() => setShowCityList(!showCityList)}
                     className="absolute right-0 top-0 h-full px-2 flex items-center"
@@ -145,29 +143,30 @@ const DoanhThuBang = () => {
                 )}
               </th>
               <th className="px-4 py-2 border-r border-gray-300">
-                Tháng
+                Năm
+                <select
+                  value={selectedYear}
+                  onChange={(e) => handleYearSelect(e.target.value)}
+                  className="ml-2 border border-gray-300 px-2 py-1 rounded"
+                >
+                  <option value="">Chọn năm</option>
+                  {/* Tạo các option cho các năm */}
+                  {Array.from({length: 10}, (_, i) => new Date().getFullYear() - i).map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
                 <button
-                  onClick={handleSwitchToBangNam}
-                  className="ml-2 flex items-center" // Thêm nút chuyển sang /doanh-thu-bang-nam
+                  onClick={handleSwitchToBangQuy}
+                  className="ml-2 flex items-center" // Thêm nút chuyển sang /doanh-thu-quy
                 >
                   <BsArrowRight />
                 </button>
                 <button
-                  onClick={handleSwitchToBangQuy}
+                  onClick={handleSwitchToBang}
                   className="ml-2 flex items-center" // Thêm nút chuyển sang /doanh-thu-bang
                 >
                   <BsArrowLeft />
                 </button>
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => handleMonthSelect(e.target.value)} // Xử lý khi chọn tháng
-                  className="ml-2 px-2 py-1 border border-gray-300 rounded focus:outline-none"
-                >
-                  <option value="">Tất cả</option>
-                  {[...Array(12).keys()].map(month => (
-                    <option key={month + 1} value={month + 1}>Tháng {month + 1}</option>
-                  ))}
-                </select>
               </th>
               <th className="px-4 py-2 border-r border-gray-300">Số lượng đặt</th>
               <th className="px-4 py-2">Doanh thu</th>
@@ -219,4 +218,4 @@ const DoanhThuBang = () => {
   );
 };
 
-export default DoanhThuBang;
+export default DoanhThuBangNam;

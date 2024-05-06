@@ -22,9 +22,9 @@ const generateFakeData = () => {
   return data;
 };
 
-const fetchDataFromBackend = async () => {
+const fetchDataFromBackend = async (selectedYear) => { // Thêm tham số selectedYear để lấy dữ liệu tương ứng với năm được chọn
   try {
-    const response = await axios.get('API_URL');
+    const response = await axios.get(`API_URL?year=${selectedYear}`); // Sử dụng selectedYear để lấy dữ liệu theo năm
     return response.data;
   } catch (error) {
     console.error('Error fetching data:', error);
@@ -38,6 +38,7 @@ const DoanhThuBangNam = () => {
   const [showCityList, setShowCityList] = useState(false);
   const [cityList, setCityList] = useState([]);
   const [selectedCity, setSelectedCity] = useState(null);
+  const [selectedYear, setSelectedYear] = useState(null); // Thêm state mới để lưu trữ năm được chọn
   const navigate = useNavigate();
 
   const handleSwitchToThanhPho = () => {
@@ -50,12 +51,12 @@ const DoanhThuBangNam = () => {
 
   const handleSwitchToBang = () => {
     navigate('/doanh-thu-bang');
-  }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const apiData = await fetchDataFromBackend();
+        const apiData = await fetchDataFromBackend(selectedYear); // Truyền selectedYear vào hàm fetchDataFromBackend
         setData(apiData.length > 0 ? apiData : generateFakeData());
       } catch (error) {
         console.error('Error fetching data:', error);
@@ -63,7 +64,7 @@ const DoanhThuBangNam = () => {
     };
 
     fetchData();
-  }, []);
+  }, [selectedYear]); // Thêm selectedYear vào dependency array để useEffect chạy lại khi selectedYear thay đổi
 
   const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
   const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
@@ -85,17 +86,24 @@ const DoanhThuBangNam = () => {
       setCityList(uniqueFakeCities);
     }
     setShowCityList(!showCityList);
+    setSelectedYear(null); // Xóa năm được chọn khi tìm kiếm thành phố mới
   };
 
   const handleCitySelect = (city) => {
     setSelectedCity(city);
     setShowCityList(false);
     setCurrentPage(1);
+    setSelectedYear(null); // Xóa năm được chọn khi chọn thành phố mới
+  };
+
+  const handleYearSelect = (year) => {
+    setSelectedYear(year);
+    setCurrentPage(1);
   };
 
   return (
     <div className="mx-auto w-4/5">
-      <h2 className="text-xl font-bold mb-4">Doanh Thu</h2>
+      <h2 className="text-xl font-bold mb-4">Doanh Thu theo BANG - NĂM</h2>
       <div className="overflow-x-auto">
         <table className="table-auto w-full border border-gray-300">
           <thead className="bg-gray-200">
@@ -136,6 +144,17 @@ const DoanhThuBangNam = () => {
               </th>
               <th className="px-4 py-2 border-r border-gray-300">
                 Năm
+                <select
+                  value={selectedYear}
+                  onChange={(e) => handleYearSelect(e.target.value)}
+                  className="ml-2 border border-gray-300 px-2 py-1 rounded"
+                >
+                  <option value="">Chọn năm</option>
+                  {/* Tạo các option cho các năm */}
+                  {Array.from({length: 10}, (_, i) => new Date().getFullYear() - i).map((year) => (
+                    <option key={year} value={year}>{year}</option>
+                  ))}
+                </select>
                 <button
                   onClick={handleSwitchToBangQuy}
                   className="ml-2 flex items-center" // Thêm nút chuyển sang /doanh-thu-quy
