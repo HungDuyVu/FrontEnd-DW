@@ -4,6 +4,9 @@ import {
 import App from "../App";
 import DoanhThu from "../commponents/DoanhThu";
 import Kho from "../commponents/Kho";
+import DoanhThuBang from "../commponents/DoanhThuBang";
+import DoanhThuBangQuy from "../commponents/DoanhThuBangQuy";
+import DoanhThuBangNam from "../commponents/DoanhThuBangNam";
 
 
 const router = createBrowserRouter([
@@ -14,6 +17,18 @@ const router = createBrowserRouter([
             {
                 path: "/doanh-thu",
                 element: <DoanhThu />
+            },
+            {
+                path: "/doanh-thu-bang",
+                element: <DoanhThuBang />
+            },
+            {
+                path: "/doanh-thu-bang-quy",
+                element: <DoanhThuBangQuy />
+            },
+            {
+                path: "/doanh-thu-bang-nam",
+                element: <DoanhThuBangNam />
             },
             {
                 path: "/kho",
