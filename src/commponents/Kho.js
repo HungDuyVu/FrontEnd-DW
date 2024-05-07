@@ -145,7 +145,7 @@ const Kho = () => {
             </table>
           </div>
           {/* Phần điều hướng trang */}
-          <div className="flex justify-center mt-4">
+          {/* <div className="flex justify-center mt-4">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
               disabled={currentPage === 1}
@@ -161,7 +161,7 @@ const Kho = () => {
             >
               {'>'}
             </button>
-          </div>
+          </div> */}
           {/* Phần nhập số trang */}
           <div className="flex justify-center mt-2">
             <input

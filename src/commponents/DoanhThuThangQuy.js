@@ -41,7 +41,7 @@ const DoanhThuBangQuy = () => {
   const [selectedQuy, setSelectedQuy] = useState(null); // Thêm state mới để lưu trữ quý được chọn
   const navigate = useNavigate();
 
-  const handleSwitchToThanhPho = () => {
+  const handleSwitchToBang = () => {
     navigate('/doanh-thu-bang');
   };
 
@@ -49,7 +49,7 @@ const DoanhThuBangQuy = () => {
     navigate('/doanh-thu-tp-nam');
   };
 
-  const handleSwitchToBang = () => {
+  const handleSwitchToThanhPho = () => {
     navigate('/doanh-thu');
   }
 
@@ -105,70 +105,76 @@ const DoanhThuBangQuy = () => {
 
   return (
     <div className="mx-auto w-4/5">
-      <h2 className="text-xl font-bold mb-4">Doanh Thu theo THÀNH PHỐ - QUÝ</h2>
+      <h2 className="text-xl font-bold mb-4">Doanh Thu theo THÀNG Quý</h2>
+      <div className="flex justify-between mb-4">
+        <div className="relative">
+          <button
+            onClick={handleSearchClick}
+            className="px-3 py-1 bg-gray-300 text-gray-700 rounded mr-2"
+          >
+            {showCityList ? 'Ẩn danh sách thành phố' : 'Hiển thị danh sách thành phố'}
+          </button>
+          <button
+            onClick={handleSwitchToBang}
+            className="px-3 py-1 bg-gray-300 text-gray-700 rounded ml-2"
+          >
+            <BsArrowLeft /> Đến doanh thu Bang
+          </button>
+          {showCityList && (
+            <ul className="absolute left-0 mt-0 bg-white border border-gray-300 rounded-md shadow-md max-h-40 overflow-y-auto">
+              <li
+                key="all"
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => handleCitySelect(null)}
+              >
+                Tháng
+              </li>
+              {cityList.map((city, index) => (
+                <li
+                  key={index}
+                  className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                  onClick={() => handleCitySelect(city)}
+                >
+                  {city}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        <div className="flex items-center">
+          <button
+            onClick={handleSwitchToThanhPho}
+            className="ml-2 flex items-center"
+          >
+            <BsArrowLeft />
+          </button>
+          <button
+            onClick={handleSwitchToBangNam}
+            className="ml-2 flex items-center"
+          >
+            <BsArrowRight />
+          </button>
+          <select
+            value={selectedQuy}
+            onChange={(e) => handleQuySelect(e.target.value)} // Use handleQuySelect
+            className="px-2 py-1 border border-gray-300 rounded focus:outline-none"
+          >
+            <option value="">Tất cả</option>
+            {[...Array(4).keys()].map(quy => (
+              <option key={quy + 1} value={quy + 1}>Quý {quy + 1}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="table-auto w-full border border-gray-300">
           <thead className="bg-gray-200">
             <tr className="border-b border-gray-300">
               <th className="px-4 py-2 border-r border-gray-300">Tên khách hàng</th>
               <th className="px-4 py-2 border-r border-gray-300">Tên mặt hàng</th>
-              <th className="px-4 py-2 border-r border-gray-300 relative">
-                Thành Phố
-                <button
-                    onClick={() => setShowCityList(!showCityList)}
-                    className="absolute right-0 top-0 h-full px-2 flex items-center"
-                  >
-                    <BsSearch />
-                  </button>
-                  <button
-                    onClick={handleSwitchToThanhPho}
-                    className="absolute right-8 top-0 h-full px-2 flex items-center"
-                  >
-                    <BsArrowLeft />
-                  </button>
-
-                  <button
-                    onClick={handleSearchClick}
-                    className="absolute right-0 top-0 h-full px-2 flex items-center"
-                  >
-                    <BsSearch />
-                  </button>
-                {/* Danh sách thành phố */}
-                {showCityList && (
-                <ul className="absolute left-0 mt-0 bg-white border border-gray-300 rounded-md shadow-md max-h-40 overflow-y-auto w-full">
-                    {cityList.map((city, index) => (
-                      <li key={index} className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleCitySelect(city)}>
-                        {city}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </th>
-              <th className="px-4 py-2 border-r border-gray-300">
-                Qúy
-                <select
-                  value={selectedQuy}
-                  onChange={(e) => handleQuySelect(e.target.value)} // Xử lý khi chọn quý
-                  className="ml-2 px-2 py-1 border border-gray-300 rounded"
-                >
-                  <option value="">Tất cả</option>
-                  {[1, 2, 3, 4].map(quy => ( // Chỉ hiển thị 4 quý
-                    <option key={quy} value={quy}>{`Quý ${quy}`}</option>
-                  ))}
-                </select>
-                <button
-                  onClick={handleSwitchToBangNam}
-                  className="ml-2 flex items-center" // Thêm nút chuyển sang /doanh-thu-bang-nam
-                >
-                  <BsArrowRight />
-                </button>
-                <button
-                  onClick={handleSwitchToBang}
-                  className="ml-2 flex items-center" // Thêm nút chuyển sang /doanh-thu-bang
-                >
-                  <BsArrowLeft />
-                </button>
-              </th>
+              <th className="px-4 py-2 border-r border-gray-300">Thành phố</th>
+              <th className="px-4 py-2 border-r border-gray-300">Quý</th>
               <th className="px-4 py-2 border-r border-gray-300">Số lượng đặt</th>
               <th className="px-4 py-2">Doanh thu</th>
             </tr>
@@ -186,23 +192,6 @@ const DoanhThuBangQuy = () => {
             ))}
           </tbody>
         </table>
-      </div>
-      <div className="flex justify-center mt-4">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="mr-2 px-3 py-1 bg-gray-300 text-gray-700 rounded"
-        >
-          {'<'}
-        </button>
-        <span>{`Trang ${currentPage}/${totalPages}`}</span>
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="ml-2 px-3 py-1 bg-gray-300 text-gray-700 rounded"
-        >
-          {'>'}
-        </button>
       </div>
       <div className="flex justify-center mt-2">
         <input

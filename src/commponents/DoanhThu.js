@@ -29,7 +29,7 @@ const fetchDataFromBackend = async () => {
     const response = await axios.get('API_URL'); // Gửi yêu cầu GET đến API_URL
     return response.data; // Trả về dữ liệu từ phản hồi của yêu cầu
   } catch (error) {
-    console.error('Error fetching data:', error); // Bắt lỗi nếu có
+    console.error('Error fetching data:', error); // Bắt lỗi nếu có 
     return []; // Trả về mảng rỗng nếu có lỗi
   }
 };
@@ -120,69 +120,77 @@ const DoanhThu = () => {
   return (
     <div className="mx-auto w-4/5">
       <h2 className="text-xl font-bold mb-4">Doanh Thu theo THÀNH PHỐ</h2>
+      <div className="flex justify-between mb-4">
+      <div className="relative">
+  <div className="flex justify-between items-center">
+    <button
+      onClick={handleSearchClick}
+      className="px-3 py-1 bg-gray-300 text-gray-700 rounded mr-2"
+    >
+      {showCityList ? 'Ẩn danh sách thành phố' : 'Hiển thị danh sách thành phố'}
+    </button>
+    <button
+      onClick={handleSwitchToBang}
+      className="px-3 py-1 bg-gray-300 text-gray-700 rounded ml-2"
+    >
+      <BsArrowLeft /> Đến doanh thu Bang
+    </button>
+  </div>
+      {showCityList && (
+        <ul className="absolute left-0 mt-0 bg-white border border-gray-300 rounded-md shadow-md max-h-40 overflow-y-auto">
+          <li
+            key="all"
+            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+            onClick={() => handleCitySelect(null)}
+          >
+            Tháng
+          </li>
+          {cityList.map((city, index) => (
+            <li
+              key={index}
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => handleCitySelect(city)}
+            >
+              {city}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+        <div className="flex items-center"> {/* Updated flexbox layout */}
+          <button
+            onClick={handleSwitchToBangNam}
+            className="ml-2 flex items-center"
+          >
+            <BsArrowLeft/>
+          </button>
+          <button
+            onClick={handleSwitchToBangQuy}
+            className="ml-2 flex items-center"
+          >
+            <BsArrowRight />
+          </button>
+          <select
+            value={selectedMonth}
+            onChange={(e) => handleMonthSelect(e.target.value)}
+            className="px-2 py-1 border border-gray-300 rounded focus:outline-none"
+          >
+            <option value="">Tất cả</option>
+            {[...Array(12).keys()].map(month => (
+              <option key={month + 1} value={month + 1}>Tháng {month + 1}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       <div className="overflow-x-auto">
         <table className="table-auto w-full border border-gray-300">
           <thead className="bg-gray-200">
             <tr className="border-b border-gray-300">
               <th className="px-4 py-2 border-r border-gray-300">Tên khách hàng</th>
               <th className="px-4 py-2 border-r border-gray-300">Tên mặt hàng</th>
-              <th className="px-4 py-2 border-r border-gray-300 relative">
-                Thành phố
-                <button
-                    onClick={() => setShowCityList(!showCityList)}
-                    className="absolute right-0 top-0 h-full px-2 flex items-center"
-                  >
-                    <BsSearch /> {/* Biểu tượng tìm kiếm */}
-                  </button>
-                  <button
-                    onClick={handleSwitchToBang}
-                    className="absolute right-8 top-0 h-full px-2 flex items-center"
-                  >
-                    <BsArrowLeft /> {/* Biểu tượng mũi tên trái */}
-                  </button>
-
-                  <button
-                    onClick={handleSearchClick}
-                    className="absolute right-0 top-0 h-full px-2 flex items-center"
-                  >
-                    <BsSearch /> {/* Biểu tượng tìm kiếm */}
-                  </button>
-                {/* Danh sách thành phố */}
-                {showCityList && (
-                <ul className="absolute left-0 mt-0 bg-white border border-gray-300 rounded-md shadow-md max-h-40 overflow-y-auto w-full">
-                    {cityList.map((city, index) => (
-                      <li key={index} className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleCitySelect(city)}>
-                        {city}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </th>
-              <th className="px-4 py-2 border-r border-gray-300">
-                Tháng
-                <button
-                  onClick={handleSwitchToBangQuy}
-                  className="ml-2 flex items-center" // Thêm nút chuyển sang /doanh-thu-bang-nam
-                >
-                  <BsArrowRight /> {/* Biểu tượng mũi tên phải */}
-                </button>
-                <button
-                  onClick={handleSwitchToBangNam}
-                  className="ml-2 flex items-center" // Thêm nút chuyển sang /doanh-thu-bang
-                >
-                  <BsArrowLeft /> {/* Biểu tượng mũi tên trái */}
-                </button>
-                <select
-                  value={selectedMonth}
-                  onChange={(e) => handleMonthSelect(e.target.value)} // Xử lý khi chọn tháng
-                  className="ml-2 px-2 py-1 border border-gray-300 rounded focus:outline-none"
-                >
-                  <option value="">Tất cả</option>
-                  {[...Array(12).keys()].map(month => (
-                    <option key={month + 1} value={month + 1}>Tháng {month + 1}</option>
-                  ))}
-                </select>
-              </th>
+              <th className="px-4 py-2 border-r border-gray-300">Thành phố</th>
+              <th className="px-4 py-2 border-r border-gray-300">Tháng</th>
               <th className="px-4 py-2 border-r border-gray-300">Số lượng đặt</th>
               <th className="px-4 py-2">Doanh thu</th>
             </tr>
@@ -200,23 +208,6 @@ const DoanhThu = () => {
             ))}
           </tbody>
         </table>
-      </div>
-      <div className="flex justify-center mt-4">
-        <button
-          onClick={() => handlePageChange(currentPage - 1)}
-          disabled={currentPage === 1}
-          className="mr-2 px-3 py-1 bg-gray-300 text-gray-700 rounded"
-        >
-          {'<'} {/* Nút chuyển đến trang trước */}
-        </button>
-        <span>{`Trang ${currentPage}/${totalPages}`}</span>
-        <button
-          onClick={() => handlePageChange(currentPage + 1)}
-          disabled={currentPage === totalPages}
-          className="ml-2 px-3 py-1 bg-gray-300 text-gray-700 rounded"
-        >
-          {'>'} {/* Nút chuyển đến trang kế tiếp */}
-        </button>
       </div>
       <div className="flex justify-center mt-2">
         <input
